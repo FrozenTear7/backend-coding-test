@@ -1,0 +1,28 @@
+swagger: "2.0"
+info:
+  description: "Initial Description"
+  version: "1.0.0"
+  title: "Xendit Coding Exercise"
+  termsOfService: "http://swagger.io/terms/"
+host: "localhost:8010"
+basePath: "/"
+tags:
+- name: "health"
+  description: "Check the current health status of the server"
+- name: "rides"
+  description: "Access to rides data"
+schemes:
+- "https"
+- "http"
+paths:
+  /health:
+    get:
+      tags:
+      - "health"
+      summary: "Check the health status"
+      operationId: "getHealthStatus"
+      produces:
+      - "text/html"
+      responses:
+        "200":
+          description: "Healthy server status"
