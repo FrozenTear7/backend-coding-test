@@ -3,6 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import { Database } from 'sqlite3';
 import { RideBody } from './types';
+import logger from './utils/logger';
 
 const app = express();
 
@@ -31,11 +32,13 @@ function buildAppWithDb(db: Database): express.Express {
       startLongitude < -180 ||
       startLongitude > 180
     ) {
-      return res.status(400).send({
+      const error = {
         error_code: 'VALIDATION_ERROR',
         message:
           'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively',
-      });
+      };
+      logger.error(`${error.error_code} - ${error.message}`);
+      return res.status(400).send(error);
     }
 
     if (
@@ -44,32 +47,40 @@ function buildAppWithDb(db: Database): express.Express {
       endLongitude < -180 ||
       endLongitude > 180
     ) {
-      return res.status(400).send({
+      const error = {
         error_code: 'VALIDATION_ERROR',
         message:
           'End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively',
-      });
+      };
+      logger.error(`${error.error_code} - ${error.message}`);
+      return res.status(400).send(error);
     }
 
     if (typeof riderName !== 'string' || riderName.length < 1) {
-      return res.status(400).send({
+      const error = {
         error_code: 'VALIDATION_ERROR',
         message: 'Rider name must be a non empty string',
-      });
+      };
+      logger.error(`${error.error_code} - ${error.message}`);
+      return res.status(400).send(error);
     }
 
     if (typeof driverName !== 'string' || driverName.length < 1) {
-      return res.status(400).send({
+      const error = {
         error_code: 'VALIDATION_ERROR',
         message: 'Driver name must be a non empty string',
-      });
+      };
+      logger.error(`${error.error_code} - ${error.message}`);
+      return res.status(400).send(error);
     }
 
     if (typeof driverVehicle !== 'string' || driverVehicle.length < 1) {
-      return res.status(400).send({
+      const error = {
         error_code: 'VALIDATION_ERROR',
         message: 'Driver vehicle must be a non empty string',
-      });
+      };
+      logger.error(`${error.error_code} - ${error.message}`);
+      return res.status(400).send(error);
     }
 
     const values = [
@@ -87,10 +98,12 @@ function buildAppWithDb(db: Database): express.Express {
       values,
       function (err) {
         if (err) {
-          return res.status(400).send({
+          const error = {
             error_code: 'SERVER_ERROR',
             message: 'Unknown error',
-          });
+          };
+          logger.error(`${error.error_code} - ${error.message}`);
+          return res.status(400).send(error);
         }
 
         return db.all(
@@ -98,10 +111,12 @@ function buildAppWithDb(db: Database): express.Express {
           this.lastID,
           function (err, rows) {
             if (err) {
-              return res.status(400).send({
+              const error = {
                 error_code: 'SERVER_ERROR',
                 message: 'Unknown error',
-              });
+              };
+              logger.error(`${error.error_code} - ${error.message}`);
+              return res.status(400).send(error);
             }
 
             return res.send(rows);
@@ -114,17 +129,21 @@ function buildAppWithDb(db: Database): express.Express {
   app.get('/rides', (_req, res) => {
     db.all('SELECT * FROM Rides', function (err, rows) {
       if (err) {
-        return res.status(400).send({
+        const error = {
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
-        });
+        };
+        logger.error(`${error.error_code} - ${error.message}`);
+        return res.status(400).send(error);
       }
 
       if (rows.length === 0) {
-        return res.status(404).send({
+        const error = {
           error_code: 'RIDES_NOT_FOUND_ERROR',
           message: 'Could not find any rides',
-        });
+        };
+        logger.error(`${error.error_code} - ${error.message}`);
+        return res.status(404).send(error);
       }
 
       return res.send(rows);
@@ -136,17 +155,21 @@ function buildAppWithDb(db: Database): express.Express {
       `SELECT * FROM Rides WHERE rideID='${req.params.id}'`,
       function (err, rows) {
         if (err) {
-          return res.status(400).send({
+          const error = {
             error_code: 'SERVER_ERROR',
             message: 'Unknown error',
-          });
+          };
+          logger.error(`${error.error_code} - ${error.message}`);
+          return res.status(400).send(error);
         }
 
         if (rows.length === 0) {
-          return res.status(404).send({
+          const error = {
             error_code: 'RIDES_NOT_FOUND_ERROR',
             message: 'Could not find any rides',
-          });
+          };
+          logger.error(`${error.error_code} - ${error.message}`);
+          return res.status(404).send(error);
         }
 
         return res.send(rows);
