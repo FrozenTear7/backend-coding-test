@@ -2,7 +2,7 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import { Database } from 'sqlite3';
-import { RideBody } from './types';
+import { CustomRequest, RideBody } from './types';
 import logger from './utils/logger';
 
 const app = express();
@@ -15,16 +15,16 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 function buildAppWithDb(db: Database): express.Express {
   app.get('/health', (_req, res) => res.send('Healthy'));
 
-  app.post('/rides', express.json(), (req, res) => {
-    const rideBody = req.body as RideBody;
-
-    const startLatitude = Number(rideBody.start_lat);
-    const startLongitude = Number(rideBody.start_long);
-    const endLatitude = Number(rideBody.end_lat);
-    const endLongitude = Number(rideBody.end_long);
-    const riderName = rideBody.rider_name;
-    const driverName = rideBody.driver_name;
-    const driverVehicle = rideBody.driver_vehicle;
+  app.post('/rides', express.json(), (req: CustomRequest<RideBody>, res) => {
+    const {
+      start_lat: startLatitude,
+      start_long: startLongitude,
+      end_lat: endLatitude,
+      end_long: endLongitude,
+      rider_name: riderName,
+      driver_name: driverName,
+      driver_vehicle: driverVehicle,
+    } = req.body;
 
     if (
       startLatitude < -90 ||
@@ -84,13 +84,13 @@ function buildAppWithDb(db: Database): express.Express {
     }
 
     const values = [
-      rideBody.start_lat,
-      rideBody.start_long,
-      rideBody.end_lat,
-      rideBody.end_long,
-      rideBody.rider_name,
-      rideBody.driver_name,
-      rideBody.driver_vehicle,
+      startLatitude,
+      startLongitude,
+      endLatitude,
+      endLongitude,
+      riderName,
+      driverName,
+      driverVehicle,
     ];
 
     return db.run(
@@ -100,7 +100,7 @@ function buildAppWithDb(db: Database): express.Express {
         if (err) {
           const error = {
             error_code: 'SERVER_ERROR',
-            message: 'Unknown error',
+            message: 'Unknown errorrr',
           };
           logger.error(`${error.error_code} - ${error.message}`);
           return res.status(400).send(error);
