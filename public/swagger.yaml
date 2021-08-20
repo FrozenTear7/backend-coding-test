@@ -1,0 +1,210 @@
+swagger: "2.0"
+info:
+  description: "This is a simple server that allows the user to create and fetch rides and also check the health status of the server."
+  version: "1.0.0"
+  title: "Xendit Coding Exercise"
+host: "localhost:8010"
+basePath: "/"
+tags:
+- name: "health"
+  description: "Check the current health status of the server"
+- name: "rides"
+  description: "Access to rides data"
+schemes:
+- "https"
+- "http"
+paths:
+  /health:
+    get:
+      tags:
+      - "health"
+      summary: "Check the health status"
+      operationId: "getHealthStatus"
+      produces:
+      - "text/html"
+      responses:
+        "200":
+          description: "Healthy server status"
+  /rides:
+    post:
+      tags:
+      - "rides"
+      summary: "Add a new ride"
+      operationId: "addRide"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Ride object that needs to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/Ride"
+      responses:
+        "200":
+          description: "Ride successfully added"
+          schema:
+            type: array
+            items:
+              oneOf:
+                - $ref: "#/definitions/CreatedRide"
+        "400":
+          description: "Validation or server error"
+          schema:
+            $ref: "#/definitions/PostErrorResponse400"
+    get:
+      tags:
+      - "rides"
+      summary: "Get all rides"
+      operationId: "getRides"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Rides fetched successfully"
+          schema:
+            type: array
+            items:
+              oneOf:
+                - $ref: "#/definitions/CreatedRide"
+        "400":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/GetErrorResponse400"
+        "404":
+          description: "No existing rides"
+          schema:
+            $ref: "#/definitions/GetErrorResponse404"
+  /rides/{id}:
+    get:
+      tags:
+      - "rides"
+      summary: "Get ride by id"
+      operationId: "getRideById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of ride that needs to be fetched"
+        required: true
+        type: "integer"
+        minimum: 1
+        format: "int64"
+      responses:
+        "200":
+          description: "Ride fetched successfully"
+          schema:
+            type: array
+            items:
+              oneOf:
+                - $ref: "#/definitions/CreatedRide"
+        "400":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/GetErrorResponse400"
+        "404":
+          description: "No existing ride"
+          schema:
+            $ref: "#/definitions/GetErrorResponse404"
+definitions:
+  Ride:
+    type: "object"
+    properties:
+      start_lat:
+        type: "number"
+        format: "float"
+        example: 49.824271294661514
+      start_long:
+        type: "number"
+        format: "float"
+        example: 19.045131543195907
+      end_lat:
+        type: "number"
+        format: "float"
+        example: 49.80327323607616
+      end_long:
+        type: "number"
+        format: "float"
+        example: 19.050793476658605
+      rider_name:
+        type: "string"
+        example: "John Rider"
+      driver_name:
+        type: "string"
+        example: "Adam Driver"
+      driver_vehicle:
+        type: "string"
+        example: "Volkswagen Golf IV"
+  CreatedRide:
+    type: "object"
+    properties:
+      rideID:
+        type: "integer"
+        format: "integer"
+        example: 1
+      start_lat:
+        type: "number"
+        format: "float"
+        example: 49.824271294661514
+      start_long:
+        type: "number"
+        format: "float"
+        example: 19.045131543195907
+      end_lat:
+        type: "number"
+        format: "float"
+        example: 49.80327323607616
+      end_long:
+        type: "number"
+        format: "float"
+        example: 19.050793476658605
+      rider_name:
+        type: "string"
+        example: "John Rider"
+      driver_name:
+        type: "string"
+        example: "Adam Driver"
+      driver_vehicle:
+        type: "string"
+        example: "Volkswagen Golf IV"
+      created: 
+        type: "date"
+        format: "date"
+        example: "2021-08-20 12:07:45"
+  PostErrorResponse400:
+    type: "object"
+    properties:
+      error_code:
+        type: "string"
+        enum:
+        - "VALIDATION_ERROR"
+        - "SERVER_ERROR"
+        example: "VALIDATION_ERROR"
+      message:
+        type: "string"
+        example: "Driver vehicle must be a non empty string"
+  GetErrorResponse400:
+    type: "object"
+    properties:
+      error_code:
+        type: "string"
+        enum:
+        - "SERVER_ERROR"
+        example: "SERVER_ERROR"
+      message:
+        type: "string"
+        example: "Unknown error"
+  GetErrorResponse404:
+    type: "object"
+    properties:
+      error_code:
+        type: "string"
+        enum:
+        - "RIDES_NOT_FOUND_ERROR"
+        example: "RIDES_NOT_FOUND_ERROR"
+      message:
+        type: "string"
+        example: "Could not find any rides"
