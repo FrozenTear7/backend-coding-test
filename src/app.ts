@@ -1,21 +1,17 @@
-'use strict'
-
-import express = require('express')
+import express from 'express'
 const app = express()
 
-import bodyParser = require('body-parser')
-const jsonParser = bodyParser.json()
-
-import swaggerUi = require('swagger-ui-express')
-import YAML = require('yamljs')
-import { Database } from 'sqlite3'
+import swaggerUi from 'swagger-ui-express'
+import YAML from 'yamljs'
 const swaggerDocument = YAML.load('./public/swagger.yaml')
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
+import { Database } from 'sqlite3'
 
 module.exports = (db: Database) => {
   app.get('/health', (_req, res) => res.send('Healthy'))
 
-  app.post('/rides', jsonParser, (req, res) => {
+  app.post('/rides', express.json(), (req, res) => {
     const startLatitude = Number(req.body.start_lat)
     const startLongitude = Number(req.body.start_long)
     const endLatitude = Number(req.body.end_lat)
@@ -81,7 +77,7 @@ module.exports = (db: Database) => {
       req.body.driver_vehicle,
     ]
 
-    const result = db.run(
+    return db.run(
       'INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)',
       values,
       function (err) {
@@ -92,7 +88,7 @@ module.exports = (db: Database) => {
           })
         }
 
-        db.all(
+        return db.all(
           'SELECT * FROM Rides WHERE rideID = ?',
           this.lastID,
           function (err, rows) {
@@ -103,14 +99,14 @@ module.exports = (db: Database) => {
               })
             }
 
-            res.send(rows)
+            return res.send(rows)
           }
         )
       }
     )
   })
 
-  app.get('/rides', (req, res) => {
+  app.get('/rides', (_req, res) => {
     db.all('SELECT * FROM Rides', function (err, rows) {
       if (err) {
         return res.status(400).send({
@@ -126,7 +122,7 @@ module.exports = (db: Database) => {
         })
       }
 
-      res.send(rows)
+      return res.send(rows)
     })
   })
 
@@ -148,7 +144,7 @@ module.exports = (db: Database) => {
           })
         }
 
-        res.send(rows)
+        return res.send(rows)
       }
     )
   })

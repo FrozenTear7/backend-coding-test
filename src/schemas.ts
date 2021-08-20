@@ -1,5 +1,3 @@
-'use strict'
-
 import { Database } from 'sqlite3'
 
 module.exports = (db: Database) => {
