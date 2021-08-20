@@ -1,24 +1,29 @@
-import express from 'express'
-const app = express()
+import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import { Database } from 'sqlite3';
+import { RideBody } from './types';
 
-import swaggerUi from 'swagger-ui-express'
-import YAML from 'yamljs'
-const swaggerDocument = YAML.load('./public/swagger.yaml')
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+const app = express();
 
-import { Database } from 'sqlite3'
+const swaggerDocument = YAML.load(
+  './public/swagger.yaml'
+) as swaggerUi.JsonObject;
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-module.exports = (db: Database) => {
-  app.get('/health', (_req, res) => res.send('Healthy'))
+function buildAppWithDb(db: Database): express.Express {
+  app.get('/health', (_req, res) => res.send('Healthy'));
 
   app.post('/rides', express.json(), (req, res) => {
-    const startLatitude = Number(req.body.start_lat)
-    const startLongitude = Number(req.body.start_long)
-    const endLatitude = Number(req.body.end_lat)
-    const endLongitude = Number(req.body.end_long)
-    const riderName = req.body.rider_name
-    const driverName = req.body.driver_name
-    const driverVehicle = req.body.driver_vehicle
+    const rideBody = req.body as RideBody;
+
+    const startLatitude = Number(rideBody.start_lat);
+    const startLongitude = Number(rideBody.start_long);
+    const endLatitude = Number(rideBody.end_lat);
+    const endLongitude = Number(rideBody.end_long);
+    const riderName = rideBody.rider_name;
+    const driverName = rideBody.driver_name;
+    const driverVehicle = rideBody.driver_vehicle;
 
     if (
       startLatitude < -90 ||
@@ -30,7 +35,7 @@ module.exports = (db: Database) => {
         error_code: 'VALIDATION_ERROR',
         message:
           'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively',
-      })
+      });
     }
 
     if (
@@ -43,39 +48,39 @@ module.exports = (db: Database) => {
         error_code: 'VALIDATION_ERROR',
         message:
           'End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively',
-      })
+      });
     }
 
     if (typeof riderName !== 'string' || riderName.length < 1) {
       return res.status(400).send({
         error_code: 'VALIDATION_ERROR',
         message: 'Rider name must be a non empty string',
-      })
+      });
     }
 
     if (typeof driverName !== 'string' || driverName.length < 1) {
       return res.status(400).send({
         error_code: 'VALIDATION_ERROR',
         message: 'Driver name must be a non empty string',
-      })
+      });
     }
 
     if (typeof driverVehicle !== 'string' || driverVehicle.length < 1) {
       return res.status(400).send({
         error_code: 'VALIDATION_ERROR',
         message: 'Driver vehicle must be a non empty string',
-      })
+      });
     }
 
-    var values = [
-      req.body.start_lat,
-      req.body.start_long,
-      req.body.end_lat,
-      req.body.end_long,
-      req.body.rider_name,
-      req.body.driver_name,
-      req.body.driver_vehicle,
-    ]
+    const values = [
+      rideBody.start_lat,
+      rideBody.start_long,
+      rideBody.end_lat,
+      rideBody.end_long,
+      rideBody.rider_name,
+      rideBody.driver_name,
+      rideBody.driver_vehicle,
+    ];
 
     return db.run(
       'INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -85,7 +90,7 @@ module.exports = (db: Database) => {
           return res.status(400).send({
             error_code: 'SERVER_ERROR',
             message: 'Unknown error',
-          })
+          });
         }
 
         return db.all(
@@ -96,15 +101,15 @@ module.exports = (db: Database) => {
               return res.status(400).send({
                 error_code: 'SERVER_ERROR',
                 message: 'Unknown error',
-              })
+              });
             }
 
-            return res.send(rows)
+            return res.send(rows);
           }
-        )
+        );
       }
-    )
-  })
+    );
+  });
 
   app.get('/rides', (_req, res) => {
     db.all('SELECT * FROM Rides', function (err, rows) {
@@ -112,19 +117,19 @@ module.exports = (db: Database) => {
         return res.status(400).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
-        })
+        });
       }
 
       if (rows.length === 0) {
         return res.status(404).send({
           error_code: 'RIDES_NOT_FOUND_ERROR',
           message: 'Could not find any rides',
-        })
+        });
       }
 
-      return res.send(rows)
-    })
-  })
+      return res.send(rows);
+    });
+  });
 
   app.get('/rides/:id', (req, res) => {
     db.all(
@@ -134,20 +139,22 @@ module.exports = (db: Database) => {
           return res.status(400).send({
             error_code: 'SERVER_ERROR',
             message: 'Unknown error',
-          })
+          });
         }
 
         if (rows.length === 0) {
           return res.status(404).send({
             error_code: 'RIDES_NOT_FOUND_ERROR',
             message: 'Could not find any rides',
-          })
+          });
         }
 
-        return res.send(rows)
+        return res.send(rows);
       }
-    )
-  })
+    );
+  });
 
-  return app
+  return app;
 }
+
+export default buildAppWithDb;

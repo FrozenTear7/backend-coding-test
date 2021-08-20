@@ -1,6 +1,6 @@
-import { Database } from 'sqlite3'
+import { Database } from 'sqlite3';
 
-module.exports = (db: Database) => {
+function buildSchemas(db: Database): Database {
   const createRideTableSchema = `
         CREATE TABLE Rides
         (
@@ -14,9 +14,11 @@ module.exports = (db: Database) => {
         driverVehicle TEXT NOT NULL,
         created DATETIME default CURRENT_TIMESTAMP
         )
-    `
+    `;
 
-  db.run(createRideTableSchema)
+  db.run(createRideTableSchema);
 
-  return db
+  return db;
 }
+
+export default buildSchemas;
