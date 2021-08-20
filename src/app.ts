@@ -1,18 +1,19 @@
 'use strict'
 
-const express = require('express')
+import express = require('express')
 const app = express()
 
-const bodyParser = require('body-parser')
+import bodyParser = require('body-parser')
 const jsonParser = bodyParser.json()
 
-const swaggerUi = require('swagger-ui-express')
-const YAML = require('yamljs')
+import swaggerUi = require('swagger-ui-express')
+import YAML = require('yamljs')
+import { Database } from 'sqlite3'
 const swaggerDocument = YAML.load('./public/swagger.yaml')
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
-module.exports = (db) => {
-  app.get('/health', (req, res) => res.send('Healthy'))
+module.exports = (db: Database) => {
+  app.get('/health', (_req, res) => res.send('Healthy'))
 
   app.post('/rides', jsonParser, (req, res) => {
     const startLatitude = Number(req.body.start_lat)
