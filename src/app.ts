@@ -100,7 +100,7 @@ function buildAppWithDb(db: Database): express.Express {
         if (err) {
           const error = {
             error_code: 'SERVER_ERROR',
-            message: 'Unknown error',
+            message: 'Unknown errorrr',
           };
           logger.error(`${error.error_code} - ${error.message}`);
           return res.status(400).send(error);
