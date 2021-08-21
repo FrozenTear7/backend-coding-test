@@ -126,8 +126,27 @@ function buildAppWithDb(db: Database): express.Express {
     );
   });
 
-  app.get('/rides', (_req, res) => {
-    db.all('SELECT * FROM Rides', function (err, rows) {
+  app.get('/rides', (req, res) => {
+    // const pageSize = 5;
+
+    const page = req.query.page || '1';
+    logger.info(page);
+
+    if (
+      typeof page !== 'string' ||
+      isNaN(+page) ||
+      !isFinite(+page) ||
+      +page < 1
+    ) {
+      const error = {
+        error_code: 'VALIDATION_ERROR',
+        message: 'Page must be an integer of value 1 or higher',
+      };
+      logger.error(`${error.error_code} - ${error.message}`);
+      return res.status(400).send(error);
+    }
+
+    return db.all('SELECT * FROM Rides', function (err, rows) {
       if (err) {
         const error = {
           error_code: 'SERVER_ERROR',
