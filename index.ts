@@ -1,19 +1,22 @@
-import sqlite3, { Database } from 'sqlite3';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 import buildSchemas from './src/schemas';
 import buildAppWithDb from './src/app';
 import logger from './src/utils/logger';
 
-const sqlite3Verbose = sqlite3.verbose();
-const db: Database = new sqlite3Verbose.Database(':memory:');
+void (async () => {
+  const db = await open({
+    filename: ':memory:',
+    driver: sqlite3.Database,
+  });
 
-const port = 8010;
+  const port = 8010;
 
-db.serialize(() => {
-  buildSchemas(db);
+  await buildSchemas(db);
 
   const app = buildAppWithDb(db);
 
   app.listen(port, () =>
     logger.info(`App started and listening on port ${port}`)
   );
-});
+})();

@@ -24,6 +24,15 @@ Test coverage badges are generated with `nyc` and `jest-coverage-badges`. They'r
 
 Project is connected to Travis CI, current build status of the `master` branch is shown on the top of the README file.
 
+### Pagination
+
+`GET /rides` endpoints implements pagination, which allows the user to get rides by specific pages with 10 records each.
+This feature utilizes sqlite3's LIMIT and OFFSET to iterate over the records with `pageSize` increments.
+
+### Refactoring
+
+TODO
+
 ---
 
 The goal of these exercises are to assess your proficiency in software engineering that is related to the daily work that we do at Xendit. Please follow the instructions below to complete the assessment.

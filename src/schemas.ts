@@ -1,6 +1,9 @@
-import { Database } from 'sqlite3';
+import sqlite3 from 'sqlite3';
+import { Database } from 'sqlite';
 
-function buildSchemas(db: Database): Database {
+async function buildSchemas(
+  db: Database<sqlite3.Database, sqlite3.Statement>
+): Promise<Database<sqlite3.Database, sqlite3.Statement>> {
   const createRideTableSchema = `
         CREATE TABLE Rides
         (
@@ -16,7 +19,7 @@ function buildSchemas(db: Database): Database {
         )
     `;
 
-  db.run(createRideTableSchema);
+  await db.run(createRideTableSchema);
 
   return db;
 }
