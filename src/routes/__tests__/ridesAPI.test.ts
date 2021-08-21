@@ -17,8 +17,18 @@ void (async () => {
 
   await buildSchemas(db);
 
-  describe('POST /rides', () => {
-    const exampleValidRideBody = {
+  const exampleValidRideBody = {
+    start_lat: 1,
+    start_long: 1,
+    end_lat: 1,
+    end_long: 1,
+    rider_name: 'test',
+    driver_name: 'test',
+    driver_vehicle: 'test',
+  };
+  const exampleRides = [
+    {
+      rideID: 1,
       start_lat: 1,
       start_long: 1,
       end_lat: 1,
@@ -26,8 +36,11 @@ void (async () => {
       rider_name: 'test',
       driver_name: 'test',
       driver_vehicle: 'test',
-    };
+      created: '2021-01-01 00:00:00',
+    },
+  ];
 
+  describe('POST /rides', () => {
     afterEach(() => {
       sinon.restore();
     });
@@ -93,22 +106,51 @@ void (async () => {
         expect(invalidRes.body).to.exist;
         expect(invalidRes.body).to.include.keys('error_code', 'message');
       });
+
+      it('should return a server error for a db error for getting the created ride', async () => {
+        sinon.stub(db, 'all').rejects('Server error during .run()');
+        const app = buildAppWithDb(db);
+
+        const invalidRes = await request(app)
+          .post('/rides')
+          .send(exampleValidRideBody);
+
+        expect(invalidRes.statusCode).to.equal(400);
+        expect(invalidRes.type).to.equal('application/json');
+        expect(invalidRes.body).to.exist;
+        expect(invalidRes.body).to.include.keys('error_code', 'message');
+      });
+
+      it('should return a server error for a db error for getting the created ride', async () => {
+        sinon.stub(db, 'all').rejects('Server error during .run()');
+        const app = buildAppWithDb(db);
+
+        const invalidRes = await request(app)
+          .post('/rides')
+          .send(exampleValidRideBody);
+
+        expect(invalidRes.statusCode).to.equal(400);
+        expect(invalidRes.type).to.equal('application/json');
+        expect(invalidRes.body).to.exist;
+        expect(invalidRes.body).to.include.keys('error_code', 'message');
+      });
+
+      it('should return the created ride', async () => {
+        sinon.stub(db, 'all').resolves(exampleRides);
+        const app = buildAppWithDb(db);
+
+        const invalidRes = await request(app)
+          .post('/rides')
+          .send(exampleValidRideBody);
+
+        expect(invalidRes.statusCode).to.equal(200);
+        expect(invalidRes.type).to.equal('application/json');
+        expect(invalidRes.body).to.deep.equal(exampleRides);
+      });
     });
   });
 
   describe('GET /rides', () => {
-    const exampleRides = {
-      rideID: 1,
-      start_lat: 1,
-      start_long: 1,
-      end_lat: 1,
-      end_long: 1,
-      rider_name: 'test',
-      driver_name: 'test',
-      driver_vehicle: 'test',
-      created: '2021-01-01 00:00:00',
-    };
-
     afterEach(() => {
       sinon.restore();
     });
@@ -167,18 +209,6 @@ void (async () => {
   });
 
   describe('GET /rides/:id', () => {
-    const exampleRides = {
-      rideID: 1,
-      start_lat: 1,
-      start_long: 1,
-      end_lat: 1,
-      end_long: 1,
-      rider_name: 'test',
-      driver_name: 'test',
-      driver_vehicle: 'test',
-      created: '2021-01-01 00:00:00',
-    };
-
     afterEach(() => {
       sinon.restore();
     });
@@ -218,6 +248,4 @@ void (async () => {
       expect(validRes.body).to.deep.equal(exampleRides);
     });
   });
-
-  await db.close();
 })();
