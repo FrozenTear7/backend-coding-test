@@ -257,6 +257,23 @@ describe('API tests', () => {
       sinon.restore();
     });
 
+    it('should return a validation error for invalid page query param', async () => {
+      const app = buildAppWithDb(db);
+
+      const invalidParams = ['invalid', Math.max(), -1];
+
+      for (const invalidParam of invalidParams) {
+        const invalidRes = await request(app)
+          .get(`/rides`)
+          .query({ page: invalidParam });
+
+        expect(invalidRes.statusCode).to.equal(400);
+        expect(invalidRes.type).to.equal('application/json');
+        expect(invalidRes.body).to.exist;
+        expect(invalidRes.body).to.include.keys('error_code', 'message');
+      }
+    });
+
     it('should return a server error for a db error', async () => {
       sinon.stub(db, 'all').yields(true);
       const app = buildAppWithDb(db);

@@ -11,8 +11,8 @@
     "start": "tsc && node build/index.js",
     "dev": "ts-node-dev index.ts",
     "test": "mocha --require ts-node/register ./tests/**/*",
-    "test:coverage": "nyc --reporter=json-summary npm run test",
-    "test:badges": "npm run test:coverage && jest-coverage-badges --input ./coverage/coverage-summary.json --output ./badges",
+    "test:coverage": "nyc npm run test",
+    "test:badges": "nyc --reporter=json-summary npm run test && jest-coverage-badges --input ./coverage/coverage-summary.json --output ./badges",
     "lint": "eslint --ext .ts . --fix",
     "prepare": "husky install"
   },

@@ -127,10 +127,9 @@ function buildAppWithDb(db: Database): express.Express {
   });
 
   app.get('/rides', (req, res) => {
-    const pageSize = 2;
+    const pageSize = 10;
 
     const page = req.query.page || '1';
-    logger.info(page);
 
     if (
       typeof page !== 'string' ||
@@ -152,7 +151,6 @@ function buildAppWithDb(db: Database): express.Express {
       }`,
       function (err, rows) {
         if (err) {
-          console.log(err);
           const error = {
             error_code: 'SERVER_ERROR',
             message: 'Unknown error',
