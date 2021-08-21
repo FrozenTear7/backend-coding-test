@@ -1,8 +1,28 @@
 # Xendit Coding Exercise
 
+[![Build Status](https://app.travis-ci.com/FrozenTear7/backend-coding-test.svg?token=9ocyxs7ue59yxkdt9YnS&branch=master)](https://app.travis-ci.com/FrozenTear7/backend-coding-test)
+
+![Coverage - statements](./badges/badge-statements.svg)
+![Coverage - branches](./badges/badge-branches.svg)
+![Coverage - functions](./badges/badge-functions.svg)
+![Coverage - lines](./badges/badge-lines.svg)
+
 ### Documentation
 
 The server functionality is documented with [Swagger](https://swagger.io/) on the endpoint [/api-docs](http://localhost:8010/api-docs).
+
+### Tooling
+
+Project code has been migrated to Typescript and given proper linting setup with `ESLint` and `Prettier` for automated code formatting on file save.
+
+`Winston` logs are split into two files:
+
+- `error.log` - error logs only
+- `combined.log` - all logs combined together _(info and error logs)_
+
+Test coverage badges are generated with `nyc` and `jest-coverage-badges`. They're generated during the `pre-commit` phase via a `husky` script.
+
+Project is connected to Travis CI, current build status of the `master` branch is shown on the top of the README file.
 
 ---
 

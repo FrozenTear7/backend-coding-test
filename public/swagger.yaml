@@ -53,7 +53,7 @@ paths:
         "400":
           description: "Validation or server error"
           schema:
-            $ref: "#/definitions/PostErrorResponse400"
+            $ref: "#/definitions/ResponseError"
     get:
       tags:
       - "rides"
@@ -61,6 +61,12 @@ paths:
       operationId: "getRides"
       produces:
       - "application/json"
+      parameters:
+      - in: "query"
+        name: "page"
+        description: "Requested page of rides data. If not provided, returns the first page."
+        type: "integer"
+        format: "int64"
       responses:
         "200":
           description: "Rides fetched successfully"
@@ -70,13 +76,13 @@ paths:
               oneOf:
                 - $ref: "#/definitions/CreatedRide"
         "400":
-          description: "Server error"
+          description: "Validation or server error"
           schema:
-            $ref: "#/definitions/GetErrorResponse400"
+            $ref: "#/definitions/ResponseError"
         "404":
           description: "No existing rides"
           schema:
-            $ref: "#/definitions/GetErrorResponse404"
+            $ref: "#/definitions/ResponseError"
   /rides/{id}:
     get:
       tags:
@@ -104,11 +110,11 @@ paths:
         "400":
           description: "Server error"
           schema:
-            $ref: "#/definitions/GetErrorResponse400"
+            $ref: "#/definitions/ResponseError"
         "404":
           description: "No existing ride"
           schema:
-            $ref: "#/definitions/GetErrorResponse404"
+            $ref: "#/definitions/ResponseError"
 definitions:
   Ride:
     type: "object"
@@ -174,7 +180,7 @@ definitions:
         type: "date"
         format: "date"
         example: "2021-08-20 12:07:45"
-  PostErrorResponse400:
+  ResponseError:
     type: "object"
     properties:
       error_code:
@@ -182,29 +188,8 @@ definitions:
         enum:
         - "VALIDATION_ERROR"
         - "SERVER_ERROR"
-        example: "VALIDATION_ERROR"
-      message:
-        type: "string"
-        example: "Driver vehicle must be a non empty string"
-  GetErrorResponse400:
-    type: "object"
-    properties:
-      error_code:
-        type: "string"
-        enum:
-        - "SERVER_ERROR"
+        - "RIDES_NOT_FOUND_ERROR"
         example: "SERVER_ERROR"
       message:
         type: "string"
         example: "Unknown error"
-  GetErrorResponse404:
-    type: "object"
-    properties:
-      error_code:
-        type: "string"
-        enum:
-        - "RIDES_NOT_FOUND_ERROR"
-        example: "RIDES_NOT_FOUND_ERROR"
-      message:
-        type: "string"
-        example: "Could not find any rides"
