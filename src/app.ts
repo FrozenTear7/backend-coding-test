@@ -127,7 +127,7 @@ function buildAppWithDb(db: Database): express.Express {
   });
 
   app.get('/rides', (req, res) => {
-    // const pageSize = 5;
+    const pageSize = 2;
 
     const page = req.query.page || '1';
     logger.info(page);
@@ -146,27 +146,33 @@ function buildAppWithDb(db: Database): express.Express {
       return res.status(400).send(error);
     }
 
-    return db.all('SELECT * FROM Rides', function (err, rows) {
-      if (err) {
-        const error = {
-          error_code: 'SERVER_ERROR',
-          message: 'Unknown error',
-        };
-        logger.error(`${error.error_code} - ${error.message}`);
-        return res.status(400).send(error);
-      }
+    return db.all(
+      `SELECT * FROM Rides ORDER BY rideID ASC LIMIT ${pageSize} OFFSET ${
+        (+page - 1) * pageSize
+      }`,
+      function (err, rows) {
+        if (err) {
+          console.log(err);
+          const error = {
+            error_code: 'SERVER_ERROR',
+            message: 'Unknown error',
+          };
+          logger.error(`${error.error_code} - ${error.message}`);
+          return res.status(400).send(error);
+        }
 
-      if (rows.length === 0) {
-        const error = {
-          error_code: 'RIDES_NOT_FOUND_ERROR',
-          message: 'Could not find any rides',
-        };
-        logger.error(`${error.error_code} - ${error.message}`);
-        return res.status(404).send(error);
-      }
+        if (rows.length === 0) {
+          const error = {
+            error_code: 'RIDES_NOT_FOUND_ERROR',
+            message: 'Could not find any rides',
+          };
+          logger.error(`${error.error_code} - ${error.message}`);
+          return res.status(404).send(error);
+        }
 
-      return res.send(rows);
-    });
+        return res.send(rows);
+      }
+    );
   });
 
   app.get('/rides/:id', (req, res) => {
