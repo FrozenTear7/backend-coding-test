@@ -11,7 +11,8 @@
     "start": "tsc && node build/index.js",
     "dev": "ts-node-dev index.ts",
     "test": "mocha --require ts-node/register ./tests/**/*",
-    "coverage": "nyc npm run test",
+    "test:coverage": "nyc --reporter=json-summary npm run test",
+    "test:badges": "npm run test:coverage && jest-coverage-badges --input ./coverage/coverage-summary.json --output ./badges",
     "lint": "eslint --ext .ts . --fix",
     "prepare": "husky install"
   },
@@ -45,6 +46,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "husky": "^7.0.1",
+    "jest-coverage-badges": "^1.1.2",
     "mocha": "^6.1.4",
     "nyc": "^15.1.0",
     "prettier": "^2.3.2",
