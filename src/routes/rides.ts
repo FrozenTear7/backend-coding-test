@@ -1,18 +1,20 @@
 import express, { Router } from 'express';
-import createRide from '../controllers/rideController/createRide';
 import sqlite3 from 'sqlite3';
 import { Database } from 'sqlite';
+import createRide from '../controllers/rideController/createRide';
+import getRides from '../controllers/rideController/getRides';
+import getRideById from '../controllers/rideController/getRideById';
 
-function ridesRouter(
+const ridesRouter = (
   db: Database<sqlite3.Database, sqlite3.Statement>
-): Router {
+): Router => {
   const router = express.Router();
 
   router.post('/', express.json(), createRide(db));
-  // router.get('/', getRides);
-  // router.get('/:id', getRideById);
+  router.get('/', express.json(), getRides(db));
+  router.get('/:id', getRideById(db));
 
   return router;
-}
+};
 
 export default ridesRouter;

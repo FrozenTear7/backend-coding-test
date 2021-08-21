@@ -1,14 +1,15 @@
 import { Response } from 'express';
-import { CustomRequest, Ride, RideBody } from '../../types';
-import logger from '../../utils/logger';
+import { CustomRequest, ErrorCode, Ride, RideBody } from '../../types';
 import sqlite3 from 'sqlite3';
 import { Database } from 'sqlite';
+import responseError from '../../utils/responseError';
+import validateLatitude from '../../validators/validateLatitude';
+import validateLongitude from '../../validators/validateLongitude';
+import validateString from '../../validators/validateString';
+import logger from '../../utils/logger';
 
-function createRide(db: Database<sqlite3.Database, sqlite3.Statement>) {
-  return async function (
-    req: CustomRequest<RideBody>,
-    res: Response
-  ): Promise<Response> {
+const createRide = (db: Database<sqlite3.Database, sqlite3.Statement>) => {
+  return async (req: CustomRequest<RideBody>, res: Response): Promise<void> => {
     const {
       start_lat: startLatitude,
       start_long: startLongitude,
@@ -19,94 +20,85 @@ function createRide(db: Database<sqlite3.Database, sqlite3.Statement>) {
       driver_vehicle: driverVehicle,
     } = req.body;
 
-    if (
-      startLatitude < -90 ||
-      startLatitude > 90 ||
-      startLongitude < -180 ||
-      startLongitude > 180
+    if (validateLatitude(startLatitude) || validateLongitude(startLongitude)) {
+      res
+        .status(400)
+        .send(
+          responseError(
+            ErrorCode.VALIDATION_ERROR,
+            'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'
+          )
+        );
+    } else if (
+      validateLatitude(endLatitude) ||
+      validateLongitude(endLongitude)
     ) {
-      const error = {
-        error_code: 'VALIDATION_ERROR',
-        message:
-          'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively',
-      };
-      logger.error(`${error.error_code} - ${error.message}`);
-      return res.status(400).send(error);
-    }
+      res
+        .status(400)
+        .send(
+          responseError(
+            ErrorCode.VALIDATION_ERROR,
+            'End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'
+          )
+        );
+    } else if (validateString(riderName)) {
+      res
+        .status(400)
+        .send(
+          responseError(
+            ErrorCode.VALIDATION_ERROR,
+            'Rider name must be a non empty string'
+          )
+        );
+    } else if (validateString(driverName)) {
+      res
+        .status(400)
+        .send(
+          responseError(
+            ErrorCode.VALIDATION_ERROR,
+            'Driver name must be a non empty string'
+          )
+        );
+    } else if (validateString(driverVehicle)) {
+      res
+        .status(400)
+        .send(
+          responseError(
+            ErrorCode.VALIDATION_ERROR,
+            'Driver vehicle must be a non empty string'
+          )
+        );
+    } else {
+      const values = [
+        startLatitude,
+        startLongitude,
+        endLatitude,
+        endLongitude,
+        riderName,
+        driverName,
+        driverVehicle,
+      ];
 
-    if (
-      endLatitude < -90 ||
-      endLatitude > 90 ||
-      endLongitude < -180 ||
-      endLongitude > 180
-    ) {
-      const error = {
-        error_code: 'VALIDATION_ERROR',
-        message:
-          'End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively',
-      };
-      logger.error(`${error.error_code} - ${error.message}`);
-      return res.status(400).send(error);
-    }
+      try {
+        const insertedRide = await db.run(
+          'INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          values
+        );
 
-    if (typeof riderName !== 'string' || riderName.length < 1) {
-      const error = {
-        error_code: 'VALIDATION_ERROR',
-        message: 'Rider name must be a non empty string',
-      };
-      logger.error(`${error.error_code} - ${error.message}`);
-      return res.status(400).send(error);
-    }
+        const rows = await db.all<Ride[]>(
+          'SELECT * FROM Rides WHERE rideID = ?',
+          insertedRide.lastID
+        );
 
-    if (typeof driverName !== 'string' || driverName.length < 1) {
-      const error = {
-        error_code: 'VALIDATION_ERROR',
-        message: 'Driver name must be a non empty string',
-      };
-      logger.error(`${error.error_code} - ${error.message}`);
-      return res.status(400).send(error);
-    }
-
-    if (typeof driverVehicle !== 'string' || driverVehicle.length < 1) {
-      const error = {
-        error_code: 'VALIDATION_ERROR',
-        message: 'Driver vehicle must be a non empty string',
-      };
-      logger.error(`${error.error_code} - ${error.message}`);
-      return res.status(400).send(error);
-    }
-
-    const values = [
-      startLatitude,
-      startLongitude,
-      endLatitude,
-      endLongitude,
-      riderName,
-      driverName,
-      driverVehicle,
-    ];
-
-    try {
-      const insertedRide = await db.run(
-        'INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        values
-      );
-
-      const rows = await db.all<Ride[]>(
-        'SELECT * FROM Rides WHERE rideID = ?',
-        insertedRide.lastID
-      );
-
-      return res.send(rows);
-    } catch (err) {
-      const error = {
-        error_code: 'SERVER_ERROR',
-        message: 'Unknown errorrr',
-      };
-      logger.error(`${error.error_code} - ${error.message}`);
-      return res.status(400).send(error);
+        res.send(rows);
+      } catch (err) {
+        logger.error(err);
+        res
+          .status(400)
+          .send(responseError(ErrorCode.SERVER_ERROR, 'Unknown error'));
+      }
     }
   };
-}
+};
 
 export default createRide;

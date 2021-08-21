@@ -26,7 +26,13 @@ export interface CustomRequest<T> extends Request {
   body: T;
 }
 
+export enum ErrorCode {
+  'VALIDATION_ERROR',
+  'SERVER_ERROR',
+  'RIDES_NOT_FOUND_ERROR',
+}
+
 export interface ResponseError {
-  error_code: 'VALIDATION_ERROR' | 'SERVER_ERROR' | 'RIDES_NOT_FOUND_ERROR';
+  error_code: ErrorCode;
   message: string;
 }
