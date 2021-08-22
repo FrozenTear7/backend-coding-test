@@ -10,8 +10,8 @@ const ridesRouter = (
 ): Router => {
   const router = express.Router();
 
-  router.post('/', express.json(), createRide(db));
-  router.get('/', express.json(), getRides(db));
+  router.post('/', express.json({ limit: '3kb' }), createRide(db));
+  router.get('/', getRides(db));
   router.get('/:id', getRideById(db));
 
   return router;
