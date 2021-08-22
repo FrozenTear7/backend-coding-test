@@ -26,9 +26,8 @@ const getRides = (db: Database<sqlite3.Database, sqlite3.Statement>) => {
     } else {
       try {
         const rows = await db.all<Ride[]>(
-          `SELECT * FROM Rides ORDER BY rideID ASC LIMIT ${pageSize} OFFSET ${
-            (+page - 1) * pageSize
-          }`
+          'SELECT * FROM Rides ORDER BY rideID ASC LIMIT ? OFFSET ?',
+          [pageSize, (+page - 1) * pageSize]
         );
 
         if (rows.length === 0) {

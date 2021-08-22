@@ -3,9 +3,11 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import sqlite3 from 'sqlite3';
 import { Database } from 'sqlite';
+import helmet from 'helmet';
 import rides from './routes/rides';
 
 const app = express();
+app.use(helmet());
 
 const swaggerDocument = YAML.load(
   './public/swagger.yaml'
