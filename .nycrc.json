@@ -1,0 +1,5 @@
+{
+  "all": true,
+  "extension": ".ts",
+  "exclude": ["build"]
+}
