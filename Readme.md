@@ -39,6 +39,7 @@ Server logic has been split into small parts consisting of routers and controlle
 All SQL queries now use a parametrized style of `run` and `all` queries that sanitize all provided values before execution, instead of using string templates that are vulnerable to injection.
 
 Additionally the server also uses [`helmet`](https://github.com/helmetjs/helmet) library for additional security measures with the help of HTTP headers.
+Rides API also has a rate limiter that allows a maximum of 100 requests per 5 minutes (doesn't apply to localhost).
 
 ---
 
