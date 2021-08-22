@@ -41,6 +41,14 @@ All SQL queries now use a parametrized style of `run` and `all` queries that san
 Additionally the server also uses [`helmet`](https://github.com/helmetjs/helmet) library for additional security measures with the help of HTTP headers.
 Rides API also has a rate limiter that allows a maximum of 100 requests per 5 minutes (doesn't apply to localhost).
 
+### Load testing
+
+Server's load capabilities are tested with `artillery` - health and rides endpoints scenarios can be found in `artillery/scenarios` directory.
+Load tests can be run with `npm run test:load`, but require giving execution right to the `runAllArtillery.sh` script _(`chmod +x ./testAllArtillery.sh` from the main directory)_
+
+Artillery config starts the tests with 150 workers that request the given endpoint for 1 minute, then it ramps up the amount to 1000.
+Endpoint load reports are generated to the `artillery` directory under a name `<scenario>_report.json`.
+
 ---
 
 The goal of these exercises are to assess your proficiency in software engineering that is related to the daily work that we do at Xendit. Please follow the instructions below to complete the assessment.

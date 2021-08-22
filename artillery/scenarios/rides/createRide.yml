@@ -1,0 +1,13 @@
+scenarios:
+  - name: "Create a ride"
+    flow:
+      - post:
+          url: "/rides"
+          json:
+            start_lat: 49.824271294661514
+            start_long: 19.045131543195907
+            end_lat: 49.80327323607616
+            end_long: 19.050793476658605
+            rider_name: John Rider
+            driver_name: Adam Driver
+            driver_vehicle: Volkswagen Golf IV

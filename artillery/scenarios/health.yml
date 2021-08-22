@@ -1,0 +1,5 @@
+scenarios:
+  - name: "Check server health"
+    flow:
+      - get:
+          url: "/health"

@@ -10,7 +10,7 @@ const app = express();
 app.use(helmet());
 
 const swaggerDocument = YAML.load(
-  './public/swagger.yaml'
+  './public/swagger.yml'
 ) as swaggerUi.JsonObject;
 
 const buildAppWithDb = (

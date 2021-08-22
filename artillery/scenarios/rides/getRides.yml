@@ -1,0 +1,5 @@
+scenarios:
+  - name: "Fetch all rides"
+    flow:
+      - get:
+          url: "/rides"
