@@ -31,7 +31,14 @@ This feature utilizes sqlite3's LIMIT and OFFSET to iterate over the records wit
 
 ### Refactoring
 
-TODO
+The server now uses async/await style of sql queries with the help of `sqlite` wrapper library.
+Server logic has been split into small parts consisting of routers and controllers and separate validators utils.
+
+### Security
+
+All SQL queries now use a parametrized style of `run` and `all` queries that sanitize all provided values before execution, instead of using string templates that are vulnerable to injection.
+
+Additionally the server also uses [`helmet`](https://github.com/helmetjs/helmet) library for additional security measures with the help of HTTP headers.
 
 ---
 

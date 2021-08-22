@@ -206,11 +206,39 @@ void (async () => {
       expect(validRes.type).to.equal('application/json');
       expect(validRes.body).to.deep.equal(exampleRides);
     });
+
+    it('should be safe from SQL injection', async () => {
+      const app = buildAppWithDb(db);
+
+      const invalidRes = await request(app)
+        .get(`/rides`)
+        .query({ page: "1'); DELETE FROM items; --" });
+
+      expect(invalidRes.statusCode).to.equal(400);
+      expect(invalidRes.type).to.equal('application/json');
+      expect(invalidRes.body).to.exist;
+      expect(invalidRes.body).to.include.keys('error_code', 'message');
+    });
   });
 
   describe('GET /rides/:id', () => {
     afterEach(() => {
       sinon.restore();
+    });
+
+    it('should return a validation error for invalid rideID param', async () => {
+      const app = buildAppWithDb(db);
+
+      const invalidParams = ['invalid', Math.max(), -1];
+
+      for (const invalidParam of invalidParams) {
+        const invalidRes = await request(app).get(`/rides/${invalidParam}`);
+
+        expect(invalidRes.statusCode).to.equal(400);
+        expect(invalidRes.type).to.equal('application/json');
+        expect(invalidRes.body).to.exist;
+        expect(invalidRes.body).to.include.keys('error_code', 'message');
+      }
     });
 
     it('should return a server error for a db error', async () => {
@@ -246,6 +274,21 @@ void (async () => {
       expect(validRes.statusCode).to.equal(200);
       expect(validRes.type).to.equal('application/json');
       expect(validRes.body).to.deep.equal(exampleRides);
+    });
+
+    it('should be safe from SQL injection', async () => {
+      const app = buildAppWithDb(db);
+
+      const invalidParams = ["1' OR 'a'='a", "1'); DELETE FROM items; --"];
+
+      for (const invalidParam of invalidParams) {
+        const invalidRes = await request(app).get(`/rides/${invalidParam}`);
+
+        expect(invalidRes.statusCode).to.equal(400);
+        expect(invalidRes.type).to.equal('application/json');
+        expect(invalidRes.body).to.exist;
+        expect(invalidRes.body).to.include.keys('error_code', 'message');
+      }
     });
   });
 })();
