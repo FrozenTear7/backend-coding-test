@@ -1,12 +1,12 @@
 config:
   target: "http://localhost:8010"
   phases:
-    - duration: 30
-      arrivalRate: 100
+    - duration: 60
+      arrivalRate: 150
       name: Required minimum load
     - duration: 60
-      arrivalRate: 100
-      rampTo: 500
+      arrivalRate: 150
+      rampTo: 1000
       name: Higher load tests
   ensure:
     p95: 200

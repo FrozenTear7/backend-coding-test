@@ -13,7 +13,8 @@
     "test": "mocha --parallel --require ts-node/register ./src/**/*.test.ts",
     "test:coverage": "nyc --all npm run test",
     "test:badges": "nyc --all --reporter=json-summary npm run test && jest-coverage-badges --input ./coverage/coverage-summary.json --output ./badges",
-    "test:load": "artillery run --output ./artillery/report.json --config ./artillery/config.yml",
+    "test:artillery": "sh ./runAllArtillery.sh",
+    "test:load": "start-server-and-test start http://localhost:8010/health test:artillery",
     "lint": "eslint --ext .ts . --fix",
     "prepare": "husky install"
   },
@@ -23,7 +24,6 @@
   "author": "Bo",
   "license": "ISC",
   "dependencies": {
-    "artillery": "^1.7.7",
     "express": "^4.16.4",
     "express-rate-limit": "^5.3.0",
     "helmet": "^4.6.0",
@@ -50,6 +50,7 @@
     "@types/yamljs": "^0.2.31",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
+    "artillery": "^1.7.7",
     "chai": "^4.3.4",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
@@ -60,6 +61,7 @@
     "nyc": "^15.1.0",
     "prettier": "^2.3.2",
     "sinon": "^11.1.2",
+    "start-server-and-test": "^1.13.1",
     "supertest": "^4.0.2",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.3.5"
