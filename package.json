@@ -13,6 +13,7 @@
     "test": "mocha --parallel --require ts-node/register ./src/**/*.test.ts",
     "test:coverage": "nyc --all npm run test",
     "test:badges": "nyc --all --reporter=json-summary npm run test && jest-coverage-badges --input ./coverage/coverage-summary.json --output ./badges",
+    "test:load": "artillery run --output ./artillery/report.json --config ./artillery/config.yml",
     "lint": "eslint --ext .ts . --fix",
     "prepare": "husky install"
   },
@@ -22,6 +23,7 @@
   "author": "Bo",
   "license": "ISC",
   "dependencies": {
+    "artillery": "^1.7.7",
     "express": "^4.16.4",
     "express-rate-limit": "^5.3.0",
     "helmet": "^4.6.0",
@@ -34,6 +36,7 @@
   },
   "devDependencies": {
     "@tsconfig/node10": "^1.0.8",
+    "@types/artillery": "^1.6.2",
     "@types/chai": "^4.2.21",
     "@types/express": "^4.17.13",
     "@types/express-rate-limit": "^5.1.3",
